@@ -1,18 +1,33 @@
 <?php
 
-namespace Php\Package;
+require_once 'Logger.php';
 
-class User
+$pid = getmypid();
+$hostname = gethostname();
+
+class Logr
 {
-    private $name;
+    public $udp;
+    public $public_key;
+    public $private_key;
+    public $private_hash;
+    public $hostname;
+    public $version;
+    public $pid;
 
-    public function __construct($name, $children = [])
+    public function __construct($udp, $public_key, $private_key, $options = [])
     {
-        $this->name = $name;
+        global $pid, $hostname;
+        $this->udp = $udp;
+        $this->public_key = $public_key;
+        $this->private_key = $private_key;
+        $this->private_hash = hash('sha256', $private_key);
+        $this->hostname = $options->hostname ? $options->hostname : $hostname;
+        $this->version = $options->version;
+        $this->pid = $pid;
     }
 
-    public function getName()
-    {
-        return $this->name;
+    public function getLogger($logname, $level = '') {
+        return new Logger($this, $logname, $level);
     }
 }
