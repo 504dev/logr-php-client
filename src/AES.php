@@ -6,7 +6,8 @@ class AES
     private $encryption_key;
     private $block_size;
 
-    function __construct($encryption_key) {
+    function __construct($encryption_key)
+    {
         $this->encryption_key = $encryption_key;
         $this->block_size = openssl_cipher_iv_length(AES_256_CFB);
     }

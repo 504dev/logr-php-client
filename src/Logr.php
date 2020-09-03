@@ -43,7 +43,8 @@ class Logr
         }
     }
 
-    public function getLogger($logname, $level = '') {
+    public function getLogger($logname, $level = '')
+    {
         return new Logger($this, $logname, $level);
     }
 }

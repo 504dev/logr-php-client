@@ -2,10 +2,9 @@
 
 require_once 'AES.php';
 
-$pid = getmypid();
-$hostname = gethostname();
 
-class Logger {
+class Logger
+{
     private $config;
     private $logname;
     private $conn;
@@ -24,14 +23,16 @@ class Logger {
     }
 
 
-    public function getPrefix($level) {
+    public function getPrefix($level)
+    {
         $res = $this->prefix;
         $res = str_replace('{time}', date("Y-m-d H:i:s"), $res);
         $res = str_replace('{level}', $level, $res);
         return $res;
     }
 
-    public function getBody($message) {
+    public function getBody($message)
+    {
         $res = $this->body;
         $res = str_replace('{version}', $this->config->getVersion(), $res);
         $res = str_replace('{pid}', $this->config->pid, $res);
@@ -44,21 +45,21 @@ class Logger {
     {
         $prefix = $this->getPrefix($level);
         $body = $this->getBody($message);
-        echo $prefix.$body."\n";
+        echo $prefix . $body . "\n";
         $this->send($level, $message);
     }
 
-        public function send($level, $message)
+    public function send($level, $message)
     {
         $encryptor = new AES($this->config->private_hash);
         $data = array(
-            "timestamp"=>json_encode(microtime(true) * 1e9),
-            "hostname"=>$this->config->hostname,
-            "logname"=>$this->logname,
-            "level"=>$level,
-            "pid"=>$this->config->pid,
-            "version"=>$this->config->getVersion(),
-            "message"=>$message
+            "timestamp" => json_encode(microtime(true) * 1e9),
+            "hostname" => $this->config->hostname,
+            "logname" => $this->logname,
+            "level" => $level,
+            "pid" => $this->config->pid,
+            "version" => $this->config->getVersion(),
+            "message" => $message
         );
         $json = json_encode($data);
         echo $json;
