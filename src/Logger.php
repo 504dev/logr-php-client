@@ -13,7 +13,7 @@ class Logger {
     private $body;
     private $level;
 
-    public function __construct($config, $logname, $level = '')
+    public function __construct(Logr $config, $logname, $level = '')
     {
         $this->config = $config;
         $this->logname = $logname;
@@ -24,7 +24,31 @@ class Logger {
     }
 
 
-    public function send($level, $message)
+    public function getPrefix($level) {
+        $res = $this->prefix;
+        $res = str_replace('{time}', date("Y-m-d H:i:s"), $res);
+        $res = str_replace('{level}', $level, $res);
+        return $res;
+    }
+
+    public function getBody($message) {
+        $res = $this->body;
+        $res = str_replace('{version}', $this->config->getVersion(), $res);
+        $res = str_replace('{pid}', $this->config->pid, $res);
+        $res = str_replace('{initiator}', '', $res);
+        $res = str_replace('{message}', $message, $res);
+        return $res;
+    }
+
+    public function log($level, $message)
+    {
+        $prefix = $this->getPrefix($level);
+        $body = $this->getBody($message);
+        echo $prefix.$body."\n";
+        $this->send($level, $message);
+    }
+
+        public function send($level, $message)
     {
         $encryptor = new AES($this->config->private_hash);
         $data = array(
@@ -33,7 +57,7 @@ class Logger {
             "logname"=>$this->logname,
             "level"=>$level,
             "pid"=>$this->config->pid,
-            "version"=>"v1.0.14",
+            "version"=>$this->config->getVersion(),
             "message"=>$message
         );
         $json = json_encode($data);

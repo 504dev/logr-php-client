@@ -15,4 +15,4 @@ echo "Decrypted: $decrypted\n";
 
 $logr = new Logr('localhost:7776', 'public', 'private');
 $logger = $logr->getLogger('hello.log');
-echo $logger->send('info', 'Hello!');
+echo $logger->log('info', 'Hello!');

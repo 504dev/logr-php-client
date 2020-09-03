@@ -4,6 +4,8 @@ require_once 'Logger.php';
 
 $pid = getmypid();
 $hostname = gethostname();
+$tag = '';
+$commit = '';
 
 class Logr
 {
@@ -25,6 +27,20 @@ class Logr
         $this->hostname = $options->hostname ? $options->hostname : $hostname;
         $this->version = $options->version;
         $this->pid = $pid;
+    }
+
+    public function getVersion()
+    {
+        global $tag, $commit;
+        if ($this->version) {
+            return $this->version;
+        } else if ($tag) {
+            return $tag;
+        } else if ($commit) {
+            return substr($commit, 0, 6);
+        } else {
+            return '';
+        }
     }
 
     public function getLogger($logname, $level = '') {
