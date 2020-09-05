@@ -1,4 +1,4 @@
-# logr-python-client
+# logr-php-client
 
 [Logr] client library for PHP.
 
