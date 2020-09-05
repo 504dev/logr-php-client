@@ -4,16 +4,11 @@ require_once 'AES.php';
 require_once 'Logr.php';
 require_once 'Logger.php';
 
-$enc = new AES(hash('sha256', 'private'));
-
-$data = "Encrypt me, please!";
-echo "Before encryption: $data\n";
-$encrypted = $enc->encrypt($data);
-echo "Encrypted: $encrypted\n";
-$decrypted = $enc->decrypt($encrypted);
-echo "Decrypted: $decrypted\n";
-
-$logr = new Logr('localhost:7776', 'public', 'private');
+$logr = new Logr(
+    'localhost:7776',
+    'MCAwDQYJKoZIhvcNAQEBBQADDwAwDAIFAMg7IrMCAwEAAQ==',
+    'MC0CAQACBQDIOyKzAgMBAAECBQCHaZwRAgMA0nkCAwDziwIDAL+xAgJMKwICGq0='
+);
 $logger = $logr->getLogger('hello.log');
 $logger->debug('Hello!');
 $logger->info('Hello!');

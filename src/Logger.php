@@ -13,8 +13,9 @@ class Logger
     private $body;
     private $level;
 
-    static function colorize($level) {
-        $map = [
+    static function colorize($level)
+    {
+        $color = [
             LEVEL_EMERG => "\033[31m",
             LEVEL_ALERT => "\033[31m",
             LEVEL_CRIT => "\033[31m",
@@ -23,8 +24,23 @@ class Logger
             LEVEL_NOTICE => "\033[92m",
             LEVEL_INFO => "\033[32m",
             LEVEL_DEBUG => "\033[34m",
-        ];
-        return $map[$level] ? $map[$level].$level."\033[0m" : $level;
+        ][$level];
+        return $color ? $color . $level . "\033[0m" : $level;
+    }
+
+    static function direct($level)
+    {
+        $direct = [
+            LEVEL_EMERG => STDERR,
+            LEVEL_ALERT => STDERR,
+            LEVEL_CRIT => STDERR,
+            LEVEL_ERROR => STDERR,
+            LEVEL_WARN => STDOUT,
+            LEVEL_NOTICE => STDOUT,
+            LEVEL_INFO => STDOUT,
+            LEVEL_DEBUG => STDOUT,
+        ][$level];
+        return $direct ? $direct : STDERR;
     }
 
     public function __construct(Logr $config, $logname, $level = '')
@@ -35,6 +51,7 @@ class Logger
         $this->prefix = '{time} {level} ';
         $this->body = '[{version}, pid={pid}, {initiator}] {message}';
         $this->level = $level;
+        $this->conn = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
     }
 
 
@@ -100,14 +117,14 @@ class Logger
     {
         $prefix = $this->getPrefix($level);
         $body = $this->getBody($message);
-        echo $prefix . $body . "\n";
+        fwrite(self::direct($level), $prefix . $body . PHP_EOL);
         $this->send($level, $message);
     }
 
     public function send($level, $message)
     {
         $encryptor = new AES($this->config->private_hash);
-        $data = array(
+        $payload = [
             "timestamp" => json_encode(microtime(true) * 1e9),
             "hostname" => $this->config->hostname,
             "logname" => $this->logname,
@@ -115,9 +132,15 @@ class Logger
             "pid" => $this->config->pid,
             "version" => $this->config->getVersion(),
             "message" => $message
-        );
-        $json = json_encode($data);
-        echo $json."\n";
-        return $encryptor->encrypt($json);
+        ];
+        $json = json_encode($payload);
+        $cipher_log = $encryptor->encrypt($json);
+        $pack = [
+            "public_key" => $this->config->public_key,
+            "cipher_log" => $cipher_log,
+        ];
+        $address = explode(":", $this->config->udp);
+        $msg = json_encode($pack);
+        socket_sendto($this->conn, $msg, strlen($msg), 0, ...$address);
     }
 }
