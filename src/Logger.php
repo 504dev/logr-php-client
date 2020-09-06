@@ -1,6 +1,5 @@
 <?php
 
-require_once 'AES.php';
 require_once 'levels.php';
 
 
@@ -43,6 +42,14 @@ class Logger
         return $direct ? $direct : STDERR;
     }
 
+    static function initiator()
+    {
+        $info = debug_backtrace()[3];
+        $file = $info["file"];
+        $line = $info["line"];
+        return implode("/", array_slice(explode("/", $file), -2)) . ":" . $line;
+    }
+
     public function __construct(Logr $config, $logname, $level = '')
     {
         $this->config = $config;
@@ -52,14 +59,6 @@ class Logger
         $this->body = '[{version}, pid={pid}, {initiator}] {message}';
         $this->level = $level;
         $this->conn = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-    }
-
-    public function initiator()
-    {
-        $info = debug_backtrace()[3];
-        $file = $info["file"];
-        $line = $info["line"];
-        return implode("/", array_slice(explode("/", $file), -2)).":".$line;
     }
 
     public function getPrefix($level)
@@ -75,7 +74,7 @@ class Logger
         $res = $this->body;
         $res = str_replace('{version}', $this->config->getVersion(), $res);
         $res = str_replace('{pid}', $this->config->pid, $res);
-        $res = str_replace('{initiator}', $this->initiator(), $res);
+        $res = str_replace('{initiator}', self::initiator(), $res);
         $res = str_replace('{message}', $message, $res);
         return $res;
     }
@@ -130,7 +129,6 @@ class Logger
 
     public function send($level, $message)
     {
-        $encryptor = new AES($this->config->private_hash);
         $payload = [
             "timestamp" => json_encode(microtime(true) * 1e9),
             "hostname" => $this->config->hostname,
@@ -141,7 +139,7 @@ class Logger
             "message" => $message
         ];
         $json = json_encode($payload);
-        $cipher_log = $encryptor->encrypt($json);
+        $cipher_log = $this->config->cipher->encrypt($json);
         $pack = [
             "public_key" => $this->config->public_key,
             "cipher_log" => $cipher_log,

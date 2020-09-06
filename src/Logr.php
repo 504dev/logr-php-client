@@ -1,5 +1,6 @@
 <?php
 
+require_once 'AES.php';
 require_once 'Logger.php';
 require_once 'utils.php';
 
@@ -13,11 +14,12 @@ class Logr
 {
     public $udp;
     public $public_key;
-    public $private_key;
-    public $private_hash;
+    private $private_key;
+    private $private_hash;
     public $hostname;
     public $version;
     public $pid;
+    public $cipher;
 
     public function __construct($udp, $public_key, $private_key, $options = [])
     {
@@ -26,6 +28,7 @@ class Logr
         $this->public_key = $public_key;
         $this->private_key = $private_key;
         $this->private_hash = hash('sha256', $private_key);
+        $this->cipher = new AES($this->private_hash);
         $this->hostname = $options->hostname ? $options->hostname : $hostname;
         $this->version = $options->version;
         $this->pid = $pid;
