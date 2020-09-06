@@ -54,6 +54,13 @@ class Logger
         $this->conn = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
     }
 
+    public function initiator()
+    {
+        $info = debug_backtrace()[3];
+        $file = $info["file"];
+        $line = $info["line"];
+        return implode("/", array_slice(explode("/", $file), -2)).":".$line;
+    }
 
     public function getPrefix($level)
     {
@@ -68,7 +75,7 @@ class Logger
         $res = $this->body;
         $res = str_replace('{version}', $this->config->getVersion(), $res);
         $res = str_replace('{pid}', $this->config->pid, $res);
-        $res = str_replace('{initiator}', '', $res);
+        $res = str_replace('{initiator}', $this->initiator(), $res);
         $res = str_replace('{message}', $message, $res);
         return $res;
     }

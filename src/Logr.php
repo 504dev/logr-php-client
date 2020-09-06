@@ -1,11 +1,13 @@
 <?php
 
 require_once 'Logger.php';
+require_once 'utils.php';
 
 $pid = getmypid();
 $hostname = gethostname();
-$tag = '';
-$commit = '';
+$tag = gettag();
+$commit = getcommit();
+
 
 class Logr
 {
