@@ -1,8 +1,6 @@
 <?php
 
-require_once 'AES.php';
-require_once 'Logr.php';
-require_once 'Logger.php';
+require_once './src/Logr.php';
 
 $logr = new Logr(
     'localhost:7776',
