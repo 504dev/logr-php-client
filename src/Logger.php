@@ -129,8 +129,9 @@ class Logger
 
     public function send($level, $message)
     {
+        $timestamp = sprintf('%0.0f', microtime(true) * 1e9);
         $payload = [
-            "timestamp" => json_encode(microtime(true) * 1e9),
+            "timestamp" => $timestamp,
             "hostname" => $this->config->hostname,
             "logname" => $this->logname,
             "level" => $level,

@@ -27,7 +27,7 @@ class Logr
         $this->udp = $udp;
         $this->public_key = $public_key;
         $this->private_key = $private_key;
-        $this->private_hash = hash('sha256', $private_key);
+        $this->private_hash = hash('sha256', base64_decode($private_key), true);
         $this->cipher = new AES($this->private_hash);
         $this->hostname = $options->hostname ? $options->hostname : $hostname;
         $this->version = $options->version;
