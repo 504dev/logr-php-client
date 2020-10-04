@@ -1,0 +1,19 @@
+{
+  "name": "504dev/logr-php-client",
+  "description": "PHP client for Logr",
+  "type": "libary",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Kozhurkin Dima",
+      "email": "kozhurkin.dima@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=7.1.0"
+  },
+  "autoload": {
+    "psr-4": { "Logr\\": "src" }
+  }
+}
